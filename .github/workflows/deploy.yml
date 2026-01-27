@@ -1,0 +1,19 @@
+name: Deploy HTML
+
+on: [push]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+            
+      - name: Deploy
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+                mkdir -p ~/.ssh
+                echo "$SSH_KEY" > ~/.ssh/deploy_key
+                chmod 600 ~/.ssh/deploy_key
+                ssh-keyscan -H 193.166.24.90 >> ~/.ssh/known_hosts
+                scp -i ~/.ssh/deploy_key -r ./index.html ubuntu@193.166.24.90:/var/www/html/
