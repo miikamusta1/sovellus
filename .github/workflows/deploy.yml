@@ -16,6 +16,4 @@ jobs:
                 echo "$SSH_KEY" > ~/.ssh/deploy_key
                 chmod 600 ~/.ssh/deploy_key
                 ssh-keyscan -H 193.166.24.90 >> ~/.ssh/known_hosts
-                - name: Move index.html
-                run: mv dist/index.html .
                 scp -i ~/.ssh/deploy_key -r ./index.html ubuntu@193.166.24.90:/var/www/html/
