@@ -11,7 +11,7 @@ RUN chown -R node:node /app
 RUN chmod -R 755 /app
 
 # Asennetaan riippuvuudet node-käyttäjänä
-RUN sudo npm ci --verbose
+RUN npm ci --verbose
 
 USER node
 
