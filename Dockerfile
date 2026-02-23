@@ -1,31 +1,23 @@
-# 1. Buildivaihe: Asennetaan riippuvuudet
-FROM node:18-alpine AS builder
-WORKDIR /app
-
-# Kopioidaan package.json ja package-lock.json
-COPY package*.json ./
-
-# Asennetaan riippuvuudet
-RUN npm ci
-
-# Kopioidaan loput tiedostot (esim. src/, public/, jne.)
-COPY . .
-
-# 2. Paketointivaihe: Luodaan kevyempi image suoritusta varten
 FROM node:18-alpine
+
+# Luodaan kansio ja asetetaan oikeudet node-käyttäjälle
+RUN mkdir -p /app && chown node:node /app
 WORKDIR /app
 
-# Kopioidaan node_modules builder-vaiheesta
-COPY --from=builder /app/node_modules ./node_modules
+# Kopioidaan package.json ja package-lock.json node-käyttäjän omistamaksi
+COPY --chown=node:node package*.json ./
 
-# Kopioidaan package.json ja package-lock.json
-COPY --from=builder /app/package*.json ./
+RUN chown -R node:node /app
+RUN chmod -R 755 /app
 
-# Kopioidaan sovelluksen lähdekoodi
-COPY --from=builder /app/ .
+# Asennetaan riippuvuudet node-käyttäjänä
+RUN sudo npm ci --verbose
 
-# Altista portti
+USER node
+
+# Kopioidaan loput tiedostot node-käyttäjän omistamaksi
+COPY --chown=node:node . .
+
 EXPOSE 3000
 
-# Käynnistetään sovellus
 CMD ["npm", "start"]
