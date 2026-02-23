@@ -9,7 +9,7 @@ COPY package*.json ./
 
 # Asenna riippuvuudet
 USER node
-RUN npm install
+RUN npm install --verbose
 
 # Kopioi sovelluksen lähdekoodi
 COPY . .
