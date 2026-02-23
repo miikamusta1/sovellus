@@ -1,21 +1,19 @@
-# Käytä virallista Node.js-kuvaa pohjana
 FROM node:18-alpine
 
-# Aseta työhakemisto
+# Luodaan sovelluskansio ja asetetaan oikeudet
+RUN mkdir -p /app && chown -R node:node /app
 WORKDIR /app
 
-# Kopioi package.json ja package-lock.json
-COPY package*.json ./
+# Kopioidaan package.json ja package-lock.json
+COPY --chown=node:node package*.json ./
 
-# Asenna riippuvuudet
+# Asennetaan riippuvuudet node-käyttäjänä
 USER node
 RUN npm install --verbose
 
-# Kopioi sovelluksen lähdekoodi
-COPY . .
+# Kopioidaan loput tiedostot
+COPY --chown=node:node . .
 
-# Altista sovelluksen portti
 EXPOSE 3000
 
-# Käynnistä sovellus
 CMD ["npm", "start"]
