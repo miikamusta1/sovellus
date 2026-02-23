@@ -1,23 +1,28 @@
-FROM node:18-alpine
-
-# Luodaan kansio ja asetetaan oikeudet node-käyttäjälle
-RUN mkdir -p /app && chown node:node /app
+# 1. Buildivaihe: Asennetaan riippuvuudet
+FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Kopioidaan package.json ja package-lock.json node-käyttäjän omistamaksi
-COPY --chown=node:node package*.json ./
+# Kopioidaan package.json ja package-lock.json
+COPY package*.json ./
 
-RUN chown -R node:node /app
-RUN chmod -R 755 /app
+# Asennetaan riippuvuudet
+RUN npm ci --omit=dev
 
-# Asennetaan riippuvuudet node-käyttäjänä
-RUN npm ci --verbose
+# Kopioidaan loput tiedostot
+COPY . .
 
-USER node
+# Suoritetaan buildaus (jos tarvitaan, esim. React/TypeScript)
+# RUN npm run build
 
-# Kopioidaan loput tiedostot node-käyttäjän omistamaksi
-COPY --chown=node:node . .
+# 2. Paketointivaihe: Luodaan kevyempi image suoritusta varten
+FROM node:18-alpine
+WORKDIR /app
 
+# Kopioidaan vain tarvittavat tiedostot builder-vaiheesta
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/ .
+
+# Käynnistetään sovellus
 EXPOSE 3000
-
 CMD ["npm", "start"]
