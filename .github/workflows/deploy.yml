@@ -1,19 +1,48 @@
-name: Deploy HTML
+name: Docker Build, Push, and Deploy
 
-on: [push]
+on:
+  push:
+    branches: [ "main" ]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-            
-      - name: Deploy
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest
+
+      - name: Copy docker-compose.yml to server
         env:
           SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
-                mkdir -p ~/.ssh
-                echo "$SSH_KEY" > ~/.ssh/deploy_key
-                chmod 600 ~/.ssh/deploy_key
-                ssh-keyscan -H 193.166.24.90 >> ~/.ssh/known_hosts
-                scp -i ~/.ssh/deploy_key -r ./index.html ubuntu@193.166.24.90:/var/www/html/
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 193.166.24.90 >> ~/.ssh/known_hosts
+          scp -i ~/.ssh/deploy_key docker-compose.yml ubuntu@193.166.24.90:/home/ubuntu/app/
+
+      - name: SSH and deploy
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh -i ~/.ssh/deploy_key ubuntu@193.166.24.90 "
+            cd /home/ubuntu/app/ &&
+            docker-compose pull &&
+            docker-compose up -d
