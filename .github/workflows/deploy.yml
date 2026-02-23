@@ -18,7 +18,7 @@ jobs:
           echo "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H 193.166.24.90 >> ~/.ssh/known_hosts
-          scp -i ~/.ssh/deploy_key docker-compose.yml ubuntu@193.166.24.90:/home/ubuntu/app/
+          scp -i ~/.ssh/deploy_key .github/workflows/docker-compose.yml ubuntu@193.166.24.90:/home/ubuntu/app/
 
       - name: SSH and deploy
         env:
