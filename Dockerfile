@@ -8,6 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Asenna riippuvuudet
+USER node
 RUN npm install
 
 # Kopioi sovelluksen lähdekoodi
