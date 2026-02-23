@@ -8,6 +8,7 @@ WORKDIR /app
 COPY --chown=node:node package*.json ./
 
 RUN chown -R node:node /app
+RUN chmod -R 755 /app
 
 # Asennetaan riippuvuudet node-käyttäjänä
 USER node
