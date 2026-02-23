@@ -13,6 +13,8 @@ RUN chmod -R 755 /app
 # Asennetaan riippuvuudet node-käyttäjänä
 RUN npm ci --verbose
 
+USER node
+
 # Kopioidaan loput tiedostot node-käyttäjän omistamaksi
 COPY --chown=node:node . .
 
