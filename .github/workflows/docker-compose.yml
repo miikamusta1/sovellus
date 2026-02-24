@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: ghcr.io/<miikamusta1>/<sovellus>:latest
+    image: ghcr.io/<miikamusta>/<sovellusrepo>:latest
     ports:
       - "3000:3000"
     environment:
