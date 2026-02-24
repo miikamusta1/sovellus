@@ -296,6 +296,3 @@ jobs:
   - `DOCKER_HUB_TOKEN`: [Docker Hub Access Token](https://hub.docker.com/settings/security)
 
 ---
-
-## Valmis! 🎉
-Nyt sovelluksesi on käynnissä ja näyttää tietokannan sisällön.
